@@ -2,7 +2,7 @@
 
 BAUD_RATE ?= 115200
 
-run: upload monitor
+run: build upload monitor
 
 build:
 	pio run
