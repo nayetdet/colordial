@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <LiquidCrystal.h>
@@ -55,12 +53,10 @@ void loop() {
   pixels.fill(pixels.Color(color[0], color[1], color[2]));
   pixels.show();
 
-  char displayText[12];
-  std::snprintf(displayText, sizeof(displayText), "%03d %03d %03d", color[0],
-                color[1], color[2]);
-
   lcd.setCursor(0, 0);
-  lcd.print(displayText);
+  lcd.printf("R:%03d G:%03d", color[0], color[1]);
+  lcd.setCursor(0, 1);
+  lcd.printf("B:%03d", color[2]);
 
   delay(100);
 }
