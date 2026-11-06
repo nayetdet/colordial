@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <LiquidCrystal.h>
 #include <ResponsiveAnalogRead.h>
+#include <color/color.hpp>
 
 constexpr uint8_t LCD_RS_PIN = 23;
 constexpr uint8_t LCD_ENABLE_PIN = 22;
@@ -17,6 +18,8 @@ constexpr uint8_t POT_R_PIN = 32;
 constexpr uint8_t POT_G_PIN = 33;
 constexpr uint8_t POT_B_PIN = 34;
 
+constexpr uint8_t MODE_SWITCH_PIN = 26;
+
 LiquidCrystal lcd(LCD_RS_PIN, LCD_ENABLE_PIN, LCD_D4_PIN,
                   LCD_D5_PIN, LCD_D6_PIN, LCD_D7_PIN);
 
@@ -29,7 +32,9 @@ ResponsiveAnalogRead inputs[] = {
 };
 
 void setup() {
+  pinMode(MODE_SWITCH_PIN, INPUT_PULLUP);
   analogReadResolution(12);
+
   for (ResponsiveAnalogRead& input : inputs) {
     input.setAnalogResolution(4096);
     input.setActivityThreshold(64);
@@ -44,19 +49,35 @@ void setup() {
 }
 
 void loop() {
-  int color[3];
+  uint8_t values[3];
   for (uint8_t i = 0; i < 3; ++i) {
     inputs[i].update();
-    color[i] = map(inputs[i].getValue(), 4095, 0, 0, 255);
+    values[i] = map(inputs[i].getValue(), 4095, 0, 0, 255);
   }
 
-  pixels.fill(pixels.Color(color[0], color[1], color[2]));
-  pixels.show();
+  const bool isHsiMode = digitalRead(MODE_SWITCH_PIN) == HIGH;
+  if (isHsiMode) {
+    color::hsi<float> hsi({values[0] / 255.0f,
+                           values[1] / 255.0f,
+                           values[2] / 255.0f});
 
+    color::rgb<uint8_t> rgb(hsi);
+    pixels.fill(pixels.Color(color::get::red(rgb),
+                             color::get::green(rgb),
+                             color::get::blue(rgb)));
+  } else {
+    pixels.fill(pixels.Color(values[0], values[1], values[2]));
+  }
+
+  pixels.show();
   lcd.setCursor(0, 0);
-  lcd.printf("R:%03d G:%03d", color[0], color[1]);
+  lcd.printf(isHsiMode ? "H:%03d S:%03d" : "R:%03d G:%03d",
+             isHsiMode ? values[0] * 360 / 255 : values[0],
+             isHsiMode ? values[1] * 100 / 255 : values[1]);
+
   lcd.setCursor(0, 1);
-  lcd.printf("B:%03d", color[2]);
+  lcd.printf(isHsiMode ? "I:%03d%%" : "B:%03d",
+             isHsiMode ? values[2] * 100 / 255 : values[2]);
 
   delay(100);
 }

@@ -1,6 +1,6 @@
 # ColorDial
 
-A hands-on RGB color mixer with live LCD feedback and a 25-pixel WS2812B matrix.
+A hands-on RGB and HSI color mixer with live LCD feedback and a 25-pixel WS2812B matrix.
 
 ## Build and upload
 
