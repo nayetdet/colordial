@@ -57,26 +57,27 @@ void loop() {
 
   const bool isHsiMode = digitalRead(MODE_SWITCH_PIN) == HIGH;
   if (isHsiMode) {
-    color::hsi<float> hsi({values[0] / 255.0f,
-                           values[1] / 255.0f,
-                           values[2] / 255.0f});
+    color::rgb<float> rgb(color::hsi<uint8_t>(
+        {values[0], values[1], values[2]}));
 
-    color::rgb<uint8_t> rgb(hsi);
-    pixels.fill(pixels.Color(color::get::red(rgb),
-                             color::get::green(rgb),
-                             color::get::blue(rgb)));
+    pixels.fill(pixels.Color(
+        constrain(color::get::red(rgb) * 255.0f, 0.0f, 255.0f),
+        constrain(color::get::green(rgb) * 255.0f, 0.0f, 255.0f),
+        constrain(color::get::blue(rgb) * 255.0f, 0.0f, 255.0f)));
   } else {
     pixels.fill(pixels.Color(values[0], values[1], values[2]));
   }
 
   pixels.show();
   lcd.setCursor(0, 0);
-  lcd.printf(isHsiMode ? "H:%03d S:%03d" : "R:%03d G:%03d",
+  lcd.printf("%c:%03d %c:%03d",
+             isHsiMode ? 'H' : 'R',
              isHsiMode ? values[0] * 360 / 255 : values[0],
+             isHsiMode ? 'S' : 'G',
              isHsiMode ? values[1] * 100 / 255 : values[1]);
 
   lcd.setCursor(0, 1);
-  lcd.printf(isHsiMode ? "I:%03d" : "B:%03d",
+  lcd.printf("%c:%03d", isHsiMode ? 'I' : 'B',
              isHsiMode ? values[2] * 100 / 255 : values[2]);
 
   delay(100);
