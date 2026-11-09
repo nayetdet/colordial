@@ -76,7 +76,7 @@ void loop() {
              isHsiMode ? values[1] * 100 / 255 : values[1]);
 
   lcd.setCursor(0, 1);
-  lcd.printf(isHsiMode ? "I:%03d%%" : "B:%03d",
+  lcd.printf(isHsiMode ? "I:%03d" : "B:%03d",
              isHsiMode ? values[2] * 100 / 255 : values[2]);
 
   delay(100);
