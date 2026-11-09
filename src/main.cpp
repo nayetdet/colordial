@@ -43,7 +43,7 @@ void setup() {
 
   lcd.begin(16, 2);
   pixels.begin();
-  pixels.setBrightness(64);
+  pixels.setBrightness(32);
   pixels.clear();
   pixels.show();
 }
